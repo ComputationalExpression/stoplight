@@ -96,7 +96,7 @@ your choice. Each method comes with its docstring.
 |`on(self)` |Turns the LED on, sets `lit` to `True`, and adds 1 to `times_lit` |
 |`off(self)` |Turns the LED off and sets `lit` to `False` |
 
-Slides: [Classes and Objects, slides 3, 4 and 8](https://computationalexpression.com/slides/week-11-session-2/#3),
+Slides: [Classes and Objects, slides 3 to 5 and 7](https://computationalexpression.com/slides/week-11-session-2/#3),
 and [Working as a Team, slide 2](https://computationalexpression.com/slides/week-11-session-3/#2).
 
 ### Button, in button.py
@@ -132,7 +132,7 @@ One cycle of each mode, using `self.show`, `self.all_off` and `self.wait`:
 |flashing yellow |yellow for half a second, then every light off for half a second |
 
 A press never changes the light in the middle of a cycle: the cycle in progress finishes, and
-the next cycle runs in the next mode. Slides: [Classes and Objects, slides 8 to 10](https://computationalexpression.com/slides/week-11-session-2/#8),
+the next cycle runs in the next mode. Slides: [Classes and Objects, slides 7 to 9](https://computationalexpression.com/slides/week-11-session-2/#7),
 and [Week 10 Session 2](https://computationalexpression.com/slides/week-10-session-2/) for
 looping over a dictionary.
 
