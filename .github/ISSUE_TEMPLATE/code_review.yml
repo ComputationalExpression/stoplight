@@ -1,0 +1,143 @@
+name: Code Review
+description: A code review of one teammate, conducted with a Technical Leader (TL) or the course instructor.
+title: "Code Review: Lab 7, Stoplight"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Each teammate has their own review, so open one issue per teammate. Fill it out with the
+        programmer present. Leave a box unchecked when the work does not meet it. An unchecked
+        box is information, not a punishment.
+  - type: input
+    attributes:
+      label: Reviewer
+      description: The GitHub username of the TL or instructor conducting this review
+      placeholder: your-github-username
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Name of reviewee
+      description: The GitHub username of the teammate being reviewed
+      placeholder: their-github-username
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: File the reviewee wrote
+      options:
+        - src/light.py
+        - src/button.py
+        - src/stoplight.py
+        - src/main.py
+        - src/light.py and src/main.py
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: Functional requirements
+      description: Check each of the following satisfied functional requirements
+      options:
+        - label: "Code solves the issue presented"
+        - label: "Code functions, even if not fully solving the issue presented"
+        - label: "Performance of the code is acceptable"
+  - type: checkboxes
+    attributes:
+      label: Code style and legibility
+      description: Check each of the following checkboxes that describe the reviewee's file
+      options:
+        - label: The code contains comments
+        - label: Variable names are accurate and appropriate
+        - label: The code is easy to read
+        - label: The code is formatted correctly
+  - type: markdown
+    attributes:
+      value: |
+        Walk through the reviewee's own file with them, with the stoplight running on their board.
+        **Ask one question per concept below, in your own words, about their own code.** Reviews
+        happen at a table where other students can hear, so vary the question from student to
+        student: the concept stays the same, the question does not. Pick from these or make up
+        your own, and fit them to the file the reviewee wrote.
+
+        **Attributes**
+        - What does each attribute of your class keep track of, and where does it get its first value?
+        - Which of your attributes changes while the stoplight runs, and which never changes?
+        - If `__init__` left out one of your attributes, which method would fail first, and why?
+
+        **Methods and self**
+        - Pick a method that changes an attribute. What is `self` when `red.on()` or `stoplight.run_cycle()` calls it?
+        - Why is the value kept as `self.something` and not as a plain variable inside the method?
+        - Walk through one call of your busiest method: what is each attribute before and after?
+
+        **Objects working together**
+        - Which other class calls your methods, or whose methods does yours call? What would break if a method name changed?
+        - The Stoplight is given its lights and button instead of making them. What does that let `main` decide?
+        - A press during the red light: follow it from the button to the moment the mode changes.
+
+        **Branches and pull requests**
+        - Show your branch and pull request. What did your reviewer say, and what did you change?
+        - Whose pull request did you review, and what did you comment on?
+        - Why does each teammate work in a separate file?
+
+        Check a concept when the answer shows the understanding described, whichever question you asked.
+  - type: checkboxes
+    attributes:
+      label: Code walkthrough
+      description: One box per concept. Check it when the reviewee's answer to your question showed the understanding described.
+      options:
+        - label: "Attributes: the reviewee can explain what each attribute of their class keeps track of and where it gets its first value"
+        - label: "Methods and self: the reviewee can explain how one of their methods changes an attribute, and what self is when it runs"
+        - label: "Objects working together: the reviewee can explain how their class is used by, or uses, the other classes"
+        - label: "Branches and pull requests: the reviewee can show their branch and pull request and explain their review of a teammate's"
+        - label: "The reviewee described their process well, communicating confidence and understanding of their own code"
+  - type: dropdown
+    attributes:
+      label: Collaborative Quality
+      description: The reviewee rates their own contribution to the team, from 1 (low) to 5 (high)
+      options:
+        - "1"
+        - "2"
+        - "3"
+        - "4"
+        - "5"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Justification of Collaborative Quality
+      description: The reviewee explains their rating
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Evaluation of Collaborative Quality
+      description: The reviewer rates the reviewee's contribution to the team, from 1 (low) to 5 (high)
+      options:
+        - "1"
+        - "2"
+        - "3"
+        - "4"
+        - "5"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Justification of Evaluation
+      description: The reviewer explains their rating, from the pull requests, reviews and commits
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: The Good, The Bad, The Ugly
+      description: Write a short note with at least 3 aspects done well, and 3 aspects on which the code could be improved
+      value: |
+        #### Positives
+        1.
+        2.
+        3.
+        #### Improvements
+        1.
+        2.
+        3.
+    validations:
+      required: true
