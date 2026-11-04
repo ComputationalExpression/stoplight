@@ -132,7 +132,7 @@ One cycle of each mode, using `self.show`, `self.all_off` and `self.wait`:
 |flashing yellow |yellow for half a second, then every light off for half a second |
 
 A press never changes the light in the middle of a cycle: the cycle in progress finishes, and
-the next cycle runs in the next mode. Slides: [Classes and Objects, slides 7 to 9](https://computationalexpression.com/slides/week-11-session-2/#7),
+the next cycle runs in the next mode. Slides: [Classes and Objects, slides 7 to 10](https://computationalexpression.com/slides/week-11-session-2/#7),
 and [Week 10 Session 2](https://computationalexpression.com/slides/week-10-session-2/) for
 looping over a dictionary.
 
