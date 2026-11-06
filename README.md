@@ -32,6 +32,7 @@ a teammate approves.
   * [Your branch](#your-branch)
   * [Your pull request](#your-pull-request)
   * [Updating main](#updating-main)
+  * [Your summary](#your-summary)
 * [Getting started](#getting-started)
   * [Testing on your Pico](#testing-on-your-pico)
 * [Evaluation](#evaluation)
@@ -73,7 +74,8 @@ Your team of three or four shares this one repository. The work is four files, o
 `src/main.py` is provided, and nobody needs to change it.
 
 A team of three has one extra file: figure out together who takes it, on a branch of its own
-with its own pull request. Agree who takes which file before anyone writes code.
+with its own pull request. Before anyone writes code, decide as a team how you will complete the
+lab: who takes which file, and when each pull request will be ready for review.
 
 ## The circuit
 
@@ -283,6 +285,19 @@ team's latest work.
 * **VS Code**: click your branch name at the bottom left, click **main** in the menu at the top
   of the window, then click the sync icon beside **main** at the bottom left
 
+### Your summary
+
+`docs/summary.md` has one section for each file and one for the team. Each of you writes your own
+section on a branch of its own:
+
+1. **[Update `main`](#updating-main)** before you write, so that you have your teammates' answers
+2. **Make a new branch**, such as `your-name-summary`, the way you made [your first branch](#your-branch)
+3. **Write the answer for your file** under its heading, and leave the other sections as they are
+4. **Commit, push, open a pull request and merge it.** A summary pull request does not need a review
+
+Once every teammate's answer is merged, answer the last question together. One of you updates
+`main`, follows the same steps to write the team's answer, and merges it.
+
 ## Getting started
 
 Open your file in `src` and work through its `TODO` markers. Check your work as you go, from the
@@ -383,7 +398,7 @@ review, you can make it up at office hours within one week of the due date:
 
 The `main` branch on GitHub at the deadline is what gets graded, so merge every pull request
 before then. Open your repository on GitHub and confirm each file and `docs/summary.md` are on
-`main`. Write your summary answers on a branch and merge them through a pull request too.
+`main`.
 
 If you need more time, apply a late token with [this form](https://forms.gle/3nGbpaNrG96DpLLdA).
 One token covers both parts of a lab: the submission and the code review. A token covers only
