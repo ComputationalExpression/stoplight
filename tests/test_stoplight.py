@@ -1,11 +1,11 @@
 """Automated checks for Lab 7: Stoplight.
 
 Each class is checked on its own. The Light and Button checks make objects of your
-class on a pretend board. The Stoplight checks give your class pretend lights and
-a pretend button, so they pass or fail on stoplight.py alone, whatever state the
-other files are in. The program check runs main with all four files together and
-reads only the stoplight log at the end, never the narrative lines. Log values
-forgive extra spaces, letter case, and a missing colon.
+class on a pretend board. The Light, Modes and Stoplight checks give your class
+pretend versions of the objects it talks to, so they pass or fail on your file
+alone, whatever state the other files are in. The program check runs main with all
+four classes together and reads only the stoplight log at the end, never the
+narrative lines. Log values forgive extra spaces, letter case, and a missing colon.
 
 Time passes only when your code calls sleep, so a loop that watches the button
 without sleeping is stopped. When a check fails, the assertion message says what
@@ -13,6 +13,7 @@ came out wrong and what was expected. gatorgrade does not show that message
 itself; it prints the pytest command to run.
 """
 
+import importlib
 import re
 from unittest.mock import patch
 
@@ -89,13 +90,13 @@ def on_board(board, action):
     """Run `action()` with the pins wired to `board` and sleep patched."""
     mockro.get_recorder().clear()
     stubs = [patch("time.sleep", side_effect=board.sleep)]
-    try:
-        import stoplight
-
-        if hasattr(stoplight, "sleep"):
-            stubs.append(patch.object(stoplight, "sleep", side_effect=board.sleep))
-    except Exception:
-        pass
+    for name in ("light", "button", "modes", "stoplight"):
+        try:
+            module = importlib.import_module(name)
+        except Exception:
+            continue
+        if hasattr(module, "sleep"):
+            stubs.append(patch.object(module, "sleep", side_effect=board.sleep))
     try:
         with mockro.override(machine_Pin_value=board.value, machine_Pin_on=board.on, machine_Pin_off=board.off):
             for stub in stubs:
@@ -160,143 +161,236 @@ def test_a_button_counts_each_new_press():
     assert presses == 2, f"presses was {presses} after two presses, expected 2: add 1 in check() for each new press"
 
 
-class FakeLight:
-    """A pretend Light that writes down what happens to it."""
+def test_a_button_watches_for_a_number_of_seconds():
+    from button import Button
 
-    def __init__(self, color, timeline, clock):
+    def watch(presses, *lengths):
+        board = Board(presses=presses)
+
+        def action():
+            button = Button(16)
+            return [button.watch(length) for length in lengths], button.presses
+
+        results, presses_counted = on_board(board, action)
+        return results, presses_counted, board.clock
+
+    results, presses, clock = watch([], 1)
+    assert results == [False], f"watch(1) returned {results[0]} with no press, expected False"
+    assert abs(clock - 1.0) < 0.25, (
+        f"watch(1) took {clock:.1f} seconds, expected 1.0: sleep(0.1) on each trip/iteration of range(int(seconds * 10))"
+    )
+    results, presses, clock = watch([(0.45, 0.62)], 1)
+    assert results == [True], f"watch(1) returned {results[0]} with a press partway through, expected True"
+    assert presses == 1, f"presses was {presses} after one press during watch, expected 1: call self.check()"
+    assert abs(clock - 1.0) < 0.25, (
+        f"watch(1) with a press partway through took {clock:.1f} seconds, expected 1.0: keep watching until the time "
+        f"is up, then return"
+    )
+    results, presses, clock = watch([(0.5, 1.5)], 1, 1)
+    assert results == [True, False], (
+        f"a press held across two calls of watch(1) returned {results}, expected [True, False]: "
+        f"a held button is one press, which self.check() already knows"
+    )
+
+
+class FakeModes:
+    """Pretend Modes that writes down each wait, and moves a pretend clock."""
+
+    def __init__(self, name="normal", on_wait=None):
+        self.name = name
+        self.mode = ["normal", "flashing red", "flashing yellow"].index(name)
+        self.requested = False
+        self.cycles = 0
+        self.clock = 0.0
+        self.waits = []
+        self.ended_at = []
+        self.on_wait = on_wait
+
+    def wait(self, seconds):
+        self.waits.append(seconds)
+        if self.on_wait is not None:
+            self.on_wait(seconds)
+        self.clock += seconds
+
+    def mode_name(self):
+        return self.name
+
+    def end_cycle(self):
+        self.ended_at.append(round(self.clock, 1))
+
+
+def test_a_light_shines_and_flashes():
+    from light import Light
+
+    board = Board()
+
+    def action():
+        light = Light(15, "red")
+        seen = []
+        modes = FakeModes(on_wait=lambda seconds: seen.append((seconds, board.lit.get(15, False))))
+        light.shine(3, modes)
+        after_shine = (list(seen), board.lit.get(15), light.lit, light.times_lit)
+        seen.clear()
+        light.flash(0.5, modes)
+        return after_shine, (list(seen), board.lit.get(15), light.lit, light.times_lit)
+
+    after_shine, after_flash = on_board(board, action)
+    want = ([(3, True)], False, False, 1)
+    assert after_shine == want, (
+        f"after shine(3, modes), (waits with the LED on or off, LED on GP15, lit, times_lit) was {after_shine}, "
+        f"expected {want}: call self.on(), then modes.wait(seconds), then self.off()"
+    )
+    want = ([(0.5, True), (0.5, False)], False, False, 2)
+    assert after_flash == want, (
+        f"after flash(0.5, modes), (waits with the LED on or off, LED on GP15, lit, times_lit) was {after_flash}, "
+        f"expected {want}: call self.shine(seconds, modes), then modes.wait(seconds)"
+    )
+
+
+class ScriptedButton:
+    """A pretend Button whose watch returns the next answer in a list."""
+
+    def __init__(self, answers):
+        self.answers = list(answers)
+        self.watched = []
+
+    def watch(self, seconds):
+        self.watched.append(seconds)
+        return self.answers.pop(0) if self.answers else False
+
+
+def test_modes_remember_a_press_while_waiting():
+    from modes import Modes
+
+    button = ScriptedButton([False, True, False])
+    modes = Modes(button)
+    assert modes.mode == 0 and modes.requested is False and modes.cycles == 0, (
+        f"a new Modes had (mode, requested, cycles) {(modes.mode, modes.requested, modes.cycles)}, expected (0, False, 0)"
+    )
+    assert modes.mode_name() == "normal", f"mode_name() was {modes.mode_name()!r} for a new Modes, expected 'normal'"
+    modes.wait(3)
+    assert button.watched == [3], f"wait(3) called the button's watch with {button.watched}, expected [3]"
+    assert modes.requested is False, "requested became True though watch returned False"
+    modes.wait(1)
+    assert modes.requested is True, "requested stayed False though watch returned True: a press sets it to True"
+    modes.wait(1)
+    assert modes.requested is True, (
+        "requested went back to False when a later watch returned False: only end_cycle sets it back"
+    )
+    assert modes.mode == 0, f"wait moved mode to {modes.mode}, expected 0: the mode changes only in end_cycle"
+
+
+def test_modes_move_on_only_when_a_cycle_ends():
+    from modes import Modes
+
+    modes = Modes(ScriptedButton([]))
+    modes.end_cycle()
+    assert modes.cycles == 1, f"cycles was {modes.cycles} after one end_cycle, expected 1"
+    assert modes.mode_name() == "normal", (
+        f"a cycle with no press changed the mode to {modes.mode_name()!r}: change it only when requested is True"
+    )
+    for want in ("flashing red", "flashing yellow", "normal"):
+        modes.requested = True
+        modes.end_cycle()
+        assert modes.mode_name() == want, (
+            f"after a requested change the mode was {modes.mode_name()!r}, expected {want!r}: after the last mode "
+            f"comes the first"
+        )
+        assert modes.requested is False, "requested was still True after the mode changed: set it back to False"
+    assert modes.cycles == 4, f"cycles was {modes.cycles} after four end_cycle calls, expected 4"
+
+
+class FakeLight:
+    """A pretend Light that writes down when it comes on."""
+
+    def __init__(self, color, timeline):
         self.color = color
         self.lit = False
         self.times_lit = 0
         self.timeline = timeline
-        self.clock = clock
 
     def on(self):
         self.lit = True
         self.times_lit += 1
-        self.timeline.append((round(self.clock[0], 1), self.color))
 
     def off(self):
         self.lit = False
 
+    def shine(self, seconds, modes):
+        self.on()
+        self.timeline.append((round(modes.clock, 1), self.color))
+        modes.wait(seconds)
+        self.off()
 
-class FakeButton:
-    """A pretend Button that is pressed once at each time in `at`."""
-
-    def __init__(self, at, clock):
-        self.at = list(at)
-        self.clock = clock
-        self.presses = 0
-
-    def check(self):
-        if self.at and self.clock[0] >= self.at[0]:
-            self.at.pop(0)
-            self.presses += 1
-            return True
-        return False
+    def flash(self, seconds, modes):
+        self.shine(seconds, modes)
+        modes.wait(seconds)
 
 
-def make_stoplight(presses_at=()):
-    """A Stoplight of pretend parts, the timeline of lights turned on, and the clock."""
+def make_stoplight(name="normal"):
+    """A Stoplight of pretend parts, its lights, the timeline of lights turned on, and its modes."""
     from stoplight import Stoplight
 
-    clock = [0.0]
     timeline = []
-    lights = {color: FakeLight(color, timeline, clock) for color in ("red", "yellow", "green")}
-    button = FakeButton(presses_at, clock)
-    stoplight = Stoplight(lights["red"], lights["yellow"], lights["green"], button)
-    return stoplight, lights, timeline, clock
-
-
-def run(stoplight, clock, method, *args):
-    """Call a Stoplight method with sleep moving the pretend clock."""
-
-    def tick(seconds=0, *rest):
-        clock[0] += seconds
-
-    import stoplight as module
-
-    stubs = [patch("time.sleep", side_effect=tick)]
-    if hasattr(module, "sleep"):
-        stubs.append(patch.object(module, "sleep", side_effect=tick))
-    for stub in stubs:
-        stub.start()
-    try:
-        return getattr(stoplight, method)(*args)
-    except AssertionError:
-        raise
-    except Exception as exc:
-        raise AssertionError(f"Stoplight.{method} stopped with {type(exc).__name__}: {exc}") from None
-    finally:
-        for stub in stubs:
-            stub.stop()
+    lights = {color: FakeLight(color, timeline) for color in ("red", "yellow", "green")}
+    modes = FakeModes(name)
+    stoplight = Stoplight(lights["red"], lights["yellow"], lights["green"], modes)
+    return stoplight, lights, timeline, modes
 
 
 def lit_colors(lights):
     return sorted(color for color, light in lights.items() if light.lit)
 
 
-def test_show_lights_one_color_and_turns_the_others_off():
-    stoplight, lights, timeline, clock = make_stoplight()
-    run(stoplight, clock, "show", "green")
-    assert lit_colors(lights) == ["green"], f"after show('green') the lit lights were {lit_colors(lights)}, expected ['green']"
-    run(stoplight, clock, "show", "red")
-    assert lit_colors(lights) == ["red"], (
-        f"after show('green') then show('red') the lit lights were {lit_colors(lights)}, expected ['red']: "
-        f"loop over the lights dictionary and turn off every light that is not the color asked for"
+def run(stoplight, method):
+    """Call a Stoplight method, turning a crash into a sentence."""
+    try:
+        return getattr(stoplight, method)()
+    except AssertionError:
+        raise
+    except Exception as exc:
+        raise AssertionError(f"Stoplight.{method} stopped with {type(exc).__name__}: {exc}") from None
+
+
+def test_the_stoplight_keeps_its_lights_in_a_dictionary():
+    stoplight, lights, timeline, modes = make_stoplight()
+    stored = [value for value in vars(stoplight).values() if isinstance(value, dict)]
+    assert any(set(value) == {"red", "yellow", "green"} for value in stored), (
+        'found no dictionary attribute with the keys "red", "yellow" and "green"'
     )
-    run(stoplight, clock, "all_off")
+    for light in lights.values():
+        light.on()
+    run(stoplight, "all_off")
     assert lit_colors(lights) == [], f"after all_off() the lit lights were {lit_colors(lights)}, expected none"
 
 
 def test_the_normal_cycle_is_red_green_yellow():
-    stoplight, lights, timeline, clock = make_stoplight()
-    assert stoplight.mode_name() == "normal", f"mode_name() was {stoplight.mode_name()!r} for a new Stoplight, expected 'normal'"
-    run(stoplight, clock, "run_cycle")
+    stoplight, lights, timeline, modes = make_stoplight()
+    run(stoplight, "run_cycle")
     want = [(0.0, "red"), (3.0, "green"), (6.0, "yellow")]
     assert timeline == want, (
-        f"one normal cycle turned on (seconds, color) {timeline}, expected {want}: red for 3 seconds, "
-        f"green for 3, yellow for 1, with self.wait between them"
+        f"one normal cycle turned on (seconds, color) {timeline}, expected {want}: red shines for 3 seconds, "
+        f"green for 3, yellow for 1"
     )
-    assert abs(clock[0] - 7.0) < 0.25, f"one normal cycle took {clock[0]:.1f} seconds, expected 7.0"
-    assert lit_colors(lights) == ["yellow"], f"after one normal cycle the lit lights were {lit_colors(lights)}, expected ['yellow']"
-    assert stoplight.cycles == 1, f"cycles was {stoplight.cycles} after one cycle, expected 1"
+    assert abs(modes.clock - 7.0) < 0.25, f"one normal cycle took {modes.clock:.1f} seconds, expected 7.0"
+    assert modes.ended_at == [7.0], (
+        f"end_cycle was called at {modes.ended_at} seconds, expected once, at 7.0, after the last light"
+    )
 
 
 def test_the_flashing_modes_flash_once_per_cycle():
-    for mode, color in ((1, "red"), (2, "yellow")):
-        stoplight, lights, timeline, clock = make_stoplight()
-        stoplight.mode = mode
-        name = stoplight.mode_name()
-        run(stoplight, clock, "run_cycle")
+    for name, color in (("flashing red", "red"), ("flashing yellow", "yellow")):
+        stoplight, lights, timeline, modes = make_stoplight(name)
+        run(stoplight, "run_cycle")
         assert timeline == [(0.0, color)], (
             f"one {name!r} cycle turned on (seconds, color) {timeline}, expected [(0.0, {color!r})]: "
-            f"{color} on for half a second, then every light off for half a second"
+            f"flash the {color} light with 0.5 seconds"
         )
-        assert round(clock[0], 1) == 1.0, f"one {name!r} cycle took {clock[0]:.1f} seconds, expected 1.0"
+        assert round(modes.clock, 1) == 1.0, f"one {name!r} cycle took {modes.clock:.1f} seconds, expected 1.0"
         assert lit_colors(lights) == [], f"after one {name!r} cycle the lit lights were {lit_colors(lights)}, expected none"
-
-
-def test_a_press_changes_the_mode_when_the_cycle_ends():
-    # Pressed one second into a normal cycle: the cycle still finishes as normal.
-    stoplight, lights, timeline, clock = make_stoplight(presses_at=[1.0])
-    run(stoplight, clock, "run_cycle")
-    assert [color for _, color in timeline] == ["red", "green", "yellow"], (
-        f"a press during a normal cycle turned on {timeline}, expected red, green and yellow: the cycle in "
-        f"progress finishes, and wait only sets requested"
-    )
-    assert stoplight.mode_name() == "flashing red", (
-        f"after a press during a normal cycle the mode was {stoplight.mode_name()!r}, expected 'flashing red'"
-    )
-    assert stoplight.requested is False, "requested was still True after the mode changed: set it back to False"
-    run(stoplight, clock, "run_cycle")
-    assert stoplight.mode_name() == "flashing red", (
-        f"a cycle with no press changed the mode to {stoplight.mode_name()!r}: change it only when requested is True"
-    )
-    # From the last mode, a press goes back to the first.
-    stoplight, lights, timeline, clock = make_stoplight(presses_at=[0.2])
-    stoplight.mode = 2
-    run(stoplight, clock, "run_cycle")
-    assert stoplight.mode == 0, f"a press during the flashing yellow mode left mode at {stoplight.mode}, expected 0: after the last mode comes the first"
+        assert modes.ended_at == [1.0], (
+            f"end_cycle was called at {modes.ended_at} seconds in a {name!r} cycle, expected once, at 1.0"
+        )
 
 
 def log_value(out, label):
@@ -338,5 +432,5 @@ def test_the_program_runs_the_stoplight_and_logs_it(capsys):
             assert got is not None, f'no "{label}" line was printed in the stoplight log ({context})'
             assert got == expected.upper(), f'the "{label}" line said {got}, expected {expected} ({context})'
         assert not any(board.lit.get(number) for number in (13, 14, 15)), (
-            f"a light was still on when the program ended ({context}): call all_off() after the last cycle"
+            f"a light was still on when the program ended ({context}): shine and flash leave a light off, and all_off turns every light off"
         )

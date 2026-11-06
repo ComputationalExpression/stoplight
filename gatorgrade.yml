@@ -1,56 +1,60 @@
-# Fifteen checks. Each class is checked on its own: the Light and Button checks make objects of
-# your class on a pretend board, and the Stoplight checks give your class pretend lights and a
-# pretend button, so a check passes or fails on its own file whatever state the others are in.
-# The program check runs all four files together and reads only the stoplight log. Time passes
-# only when your code calls sleep. Pull main before you run the checks, so you have every
-# teammate's merged work.
+# Sixteen checks. Each class is checked on its own: the checks give your class a pretend board
+# and pretend versions of the objects it talks to, so a check passes or fails on its own file
+# whatever state the others are in. The program check runs all four classes together with the
+# provided main.py and reads only the stoplight log. Time passes only when your code calls sleep.
+# Pull main before you run the checks, so you have every teammate's merged work.
 
 - description: "[LIGHT] Light(pin_number, color) stores color, lit as False and times_lit as 0; on() lights the LED, sets lit and adds 1 to times_lit; off() turns it off and sets lit to False"
   check: ExecuteCommand
   options:
     command: uv run pytest tests/test_stoplight.py::test_a_light_turns_on_and_off_and_counts
 
+- description: "[LIGHT] shine(seconds, modes) stays on through modes.wait(seconds), then turns off; flash(seconds, modes) shines, then waits again in the dark"
+  check: ExecuteCommand
+  options:
+    command: uv run pytest tests/test_stoplight.py::test_a_light_shines_and_flashes
+
 - description: "[BUTTON] Button(pin_number) starts with presses at 0, and check() returns True once for each new press, adding 1 to presses: a button held down for several checks is one press"
   check: ExecuteCommand
   options:
     command: uv run pytest tests/test_stoplight.py::test_a_button_counts_each_new_press
 
-- description: "[STOPLIGHT] show(color) turns on the light of that color and turns every other light off, and all_off() turns them all off"
+- description: "[BUTTON] watch(seconds) sleeps and calls self.check() for each tenth of a second, keeps going until the time is up, and returns True if there was a new press"
   check: ExecuteCommand
   options:
-    command: uv run pytest tests/test_stoplight.py::test_show_lights_one_color_and_turns_the_others_off
+    command: uv run pytest tests/test_stoplight.py::test_a_button_watches_for_a_number_of_seconds
 
-- description: "[STOPLIGHT] A normal cycle shows red for 3 seconds, green for 3 and yellow for 1, and adds 1 to cycles"
+- description: "[MODES] Modes(button) starts with mode 0, requested False and cycles 0; mode_name() names the current mode; wait(seconds) calls the button's watch and a press sets requested to True"
+  check: ExecuteCommand
+  options:
+    command: uv run pytest tests/test_stoplight.py::test_modes_remember_a_press_while_waiting
+
+- description: "[MODES] end_cycle() adds 1 to cycles and, only when requested is True, moves to the next mode and sets requested back to False; after flashing yellow comes normal"
+  check: ExecuteCommand
+  options:
+    command: uv run pytest tests/test_stoplight.py::test_modes_move_on_only_when_a_cycle_ends
+
+- description: "[STOPLIGHT] Stoplight keeps its lights in a dictionary attribute with the keys red, yellow and green, and all_off() turns them all off"
+  check: ExecuteCommand
+  options:
+    command: uv run pytest tests/test_stoplight.py::test_the_stoplight_keeps_its_lights_in_a_dictionary
+
+- description: "[STOPLIGHT] A normal cycle shines red for 3 seconds, green for 3 and yellow for 1, then calls end_cycle()"
   check: ExecuteCommand
   options:
     command: uv run pytest tests/test_stoplight.py::test_the_normal_cycle_is_red_green_yellow
 
-- description: "[STOPLIGHT] A flashing red or flashing yellow cycle shows its color for half a second, then every light off for half a second"
+- description: "[STOPLIGHT] A flashing red or flashing yellow cycle flashes its color with 0.5 seconds, then calls end_cycle()"
   check: ExecuteCommand
   options:
     command: uv run pytest tests/test_stoplight.py::test_the_flashing_modes_flash_once_per_cycle
 
-- description: "[STOPLIGHT] A press during a cycle sets requested, and the mode moves to the next one only when the cycle ends, back to normal after flashing yellow"
-  check: ExecuteCommand
-  options:
-    command: uv run pytest tests/test_stoplight.py::test_a_press_changes_the_mode_when_the_cycle_ends
-
-- description: "[PROGRAM] main runs the cycles it is asked for and logs Cycles, Mode, Presses and Red lit, with every light off at the end"
+- description: "[PROGRAM] The provided main.py runs with all four classes and logs Cycles, Mode, Presses and Red lit, with every light off at the end"
   check: ExecuteCommand
   options:
     command: uv run pytest tests/test_stoplight.py::test_the_program_runs_the_stoplight_and_logs_it
 
-- description: "[CODE] Stoplight keeps its lights in a dictionary attribute, run_cycle calls self.show and self.wait, and wait calls the button's check()"
-  check: ExecuteCommand
-  options:
-    command: uv run pytest tests/test_structure.py::test_the_stoplight_keeps_its_lights_in_a_dictionary_and_uses_its_own_methods
-
-- description: "[CODE] main.py imports Light, Button and Stoplight from their files, and makes three Light objects, a Button and a Stoplight"
-  check: ExecuteCommand
-  options:
-    command: uv run pytest tests/test_structure.py::test_main_imports_each_class_and_makes_the_objects
-
-- description: "[GIT] At least four pull requests are merged with Merge pull request, one for each file"
+- description: "[GIT] At least four pull requests are merged with Merge pull request, one for each class file"
   check: ExecuteCommand
   options:
     command: uv run pytest tests/test_structure.py::test_pull_requests_were_merged

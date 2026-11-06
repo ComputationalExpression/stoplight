@@ -28,9 +28,9 @@ body:
       options:
         - src/light.py
         - src/button.py
+        - src/modes.py
         - src/stoplight.py
-        - src/main.py
-        - src/light.py and src/main.py
+        - Two of these files, named in the justification below
     validations:
       required: true
   - type: checkboxes
@@ -65,13 +65,13 @@ body:
         - If `__init__` left out one of your attributes, which method would fail first, and why?
 
         **Methods and self**
-        - Pick a method that changes an attribute. What is `self` when `red.on()` or `stoplight.run_cycle()` calls it?
+        - Pick a method that changes an attribute. What is `self` when `red.on()` or `modes.end_cycle()` calls it?
         - Why is the value kept as `self.something` and not as a plain variable inside the method?
         - Walk through one call of your busiest method: what is each attribute before and after?
 
         **Objects working together**
         - Which other class calls your methods, or whose methods does yours call? What would break if a method name changed?
-        - The Stoplight is given its lights and button instead of making them. What does that let `main` decide?
+        - `main.py` makes your object and hands it what it needs. What does your class get handed, and what does it do with it?
         - A press during the red light: follow it from the button to the moment the mode changes.
 
         **Branches and pull requests**

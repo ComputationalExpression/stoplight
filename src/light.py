@@ -25,3 +25,13 @@ class Light:
         """Turn the light off."""
         # TODO: Turn the LED off and set lit to False
         pass
+
+    def shine(self, seconds, modes):
+        """Stay on for a number of seconds, then turn off."""
+        # TODO: Call self.on(), then modes.wait(seconds), then self.off()
+        pass
+
+    def flash(self, seconds, modes):
+        """Shine for a number of seconds, then stay dark for the same number of seconds."""
+        # TODO: Call self.shine(seconds, modes), then modes.wait(seconds)
+        pass

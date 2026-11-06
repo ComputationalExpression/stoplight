@@ -22,7 +22,7 @@ author.
 - Explain in words: what a class describes and what an object is, what `__init__` does and
   when it runs, what `self` stands for, how an attribute keeps its value between method calls,
   how a method calls another method of the same object with `self`, how a dictionary can hold
-  objects, how `from light import Light` finds a class in another file in `src`, what
+  objects, how an object can be passed to a method as a parameter, how `from light import Light` finds a class in another file in `src`, what
   `PULL_UP` does to a button's reading, and why one press held through several checks counts
   once.
 - Explain the team workflow: what a branch is, why each teammate works in a separate file,
@@ -32,7 +32,7 @@ author.
   kind of change would address it. They make the change.
 - When a gatorgrade check fails, point them to the check's description and to the
   `uv run pytest` command it prints, and help them read what that command reports.
-- Point them to `README.md`, the `TODO` comments in `src/main.py`, and the course slides at
+- Point them to `README.md`, the `TODO` comments in `src`, and the course slides at
   https://computationalexpression.com/ rather than restating a solution.
 - Stay within what the course has covered: `input`, `int`, `str`, arithmetic and `+=`,
   comparisons, `if`/`elif`/`else`, `and`/`or`/`not`, `for` and `while`, lists with `len` and

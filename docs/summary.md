@@ -7,8 +7,8 @@ Replace every marker with your writing, and delete the marker itself. The minimu
 
 ## light.py
 
-> What does each attribute of a `Light` keep track of? Why does `on()` change two attributes
-> as well as turning on the LED?
+> What does each attribute of a `Light` keep track of? Why does `shine` call `self.on()` rather
+> than turning on the LED itself?
 
 TODO
 
@@ -19,17 +19,17 @@ TODO
 
 TODO
 
-## stoplight.py
+## modes.py
 
 > A press during the red light of a normal cycle does not change the light right away. Explain
-> what `wait` and `run_cycle` each do with that press, and when the mode changes.
+> what `wait` and `end_cycle` each do with that press, and when the mode changes.
 
 TODO
 
-## main.py
+## stoplight.py
 
-> `main` never turns a light on itself. Explain what it does through each object, and where
-> each value in the stoplight log comes from.
+> A `Stoplight` never touches a `Pin` or the button. Explain what `run_cycle` asks each object to
+> do during one flashing red cycle, and why it does not need a `sleep`.
 
 TODO
 
