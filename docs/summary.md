@@ -1,7 +1,7 @@
 # Lab Summary
 
 Each teammate answers the question for the file they wrote, under that file's heading, in full
-sentences. In a team of three, the teammate who wrote `light.py` and `main.py` answers both. The
+sentences. In a team of three, whoever takes the extra file answers its question too. The
 last question is the team's to answer together. Each answer starts as a placeholder marker.
 Replace every marker with your writing, and delete the marker itself. The minimum word count for this document is `250` words.
 

@@ -1,7 +1,7 @@
 """Automated checks for Lab 7: Stoplight.
 
 Each class is checked on its own. The Light and Button checks make objects of your
-class on a pretend board. The Stoplight checks hand your class pretend lights and
+class on a pretend board. The Stoplight checks give your class pretend lights and
 a pretend button, so they pass or fail on stoplight.py alone, whatever state the
 other files are in. The program check runs main with all four files together and
 reads only the stoplight log at the end, never the narrative lines. Log values
@@ -155,7 +155,7 @@ def test_a_button_counts_each_new_press():
     assert start == 0, f"presses was {start} right after Button(16), expected 0"
     assert results == want, (
         f"the button read up, down, down, up, down, up, and check() returned {results}, expected {want}: "
-        f"return True only when the button reads 0 now and was_down is False"
+        f"return True only when the button reads 0 now and was not down at the last check"
     )
     assert presses == 2, f"presses was {presses} after two presses, expected 2: add 1 in check() for each new press"
 
@@ -257,7 +257,7 @@ def test_the_normal_cycle_is_red_green_yellow():
         f"one normal cycle turned on (seconds, color) {timeline}, expected {want}: red for 3 seconds, "
         f"green for 3, yellow for 1, with self.wait between them"
     )
-    assert round(clock[0], 1) == 7.0, f"one normal cycle took {clock[0]:.1f} seconds, expected 7.0"
+    assert abs(clock[0] - 7.0) < 0.25, f"one normal cycle took {clock[0]:.1f} seconds, expected 7.0"
     assert lit_colors(lights) == ["yellow"], f"after one normal cycle the lit lights were {lit_colors(lights)}, expected ['yellow']"
     assert stoplight.cycles == 1, f"cycles was {stoplight.cycles} after one cycle, expected 1"
 

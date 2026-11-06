@@ -63,8 +63,8 @@ Your team of three or four shares this one repository. The work is four files, o
 |`src/stoplight.py` |the `Stoplight` class |
 |`src/main.py` |the program that makes the objects and runs the stoplight |
 
-In a team of three, the teammate who writes `light.py` writes `main.py` too. Agree who takes
-which file before anyone writes code.
+A team of three has one extra file: figure out together who takes it, on a branch of its own
+with its own pull request. Agree who takes which file before anyone writes code.
 
 ## The circuit
 
@@ -114,12 +114,31 @@ for reading the button.
 
 `Stoplight` is given three `Light` objects and a `Button`. It never makes a `Pin` itself.
 
+An object can be a value in a dictionary, and it can be passed to another object's `__init__` and
+stored as an attribute. Either way, you call its methods with a dot. With the `Lamp` from
+[Working as a Team, slide 2](https://computationalexpression.com/slides/week-11-session-3/#2):
+
+```python
+lamps = {"porch": Lamp(15), "barn": Lamp(14)}
+lamps["barn"].flash(0.5)
+
+class Gate:
+    def __init__(self, lamp):
+        self.lamp = lamp
+
+    def open(self):
+        self.lamp.flash(1)
+
+gate = Gate(lamps["porch"])
+gate.open()
+```
+
 |Method |What it does |
 |:------|:------------|
 |`__init__(self, red, yellow, green, button)` |Stores the three lights in a dictionary attribute with the keys `"red"`, `"yellow"` and `"green"`, and the button. Stores the list of mode names `["normal", "flashing red", "flashing yellow"]`, `mode` as `0` (the position of the current mode in that list), `requested` as `False`, and `cycles` as `0` |
 |`show(self, color)` |Turns on the light of that color and turns every other light off, with a loop over the dictionary |
 |`all_off(self)` |Turns every light off |
-|`wait(self, seconds)` |For each tenth of a second in `seconds`, calls `sleep(0.1)`, then calls the button's `check()`. A press sets `requested` to `True` |
+|`wait(self, seconds)` |Loops over `range(int(seconds * 10))`, one trip/iteration for each tenth of a second. Each one calls `sleep(0.1)`, then the button's `check()`. A press sets `requested` to `True`. The `int` is needed because `0.5 * 10` is the float `5.0`, and `range` takes only an int |
 |`mode_name(self)` |Returns the name of the current mode |
 |`run_cycle(self)` |Runs one cycle of the current mode, then, when `requested` is `True`, moves `mode` to the next mode and sets `requested` back to `False`. After the last mode comes the first. Adds 1 to `cycles` |
 
@@ -305,4 +324,5 @@ before then. Open your repository on GitHub and confirm each file and `docs/summ
 `main`. Write your summary answers on a branch and merge them through a pull request too.
 
 If you need more time, apply a late token with [this form](https://forms.gle/3nGbpaNrG96DpLLdA).
-One token covers both parts of a lab: the submission and the code review.
+One token covers both parts of a lab: the submission and the code review. A token covers only
+the student who applies it, not the team.

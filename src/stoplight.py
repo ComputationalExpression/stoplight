@@ -29,7 +29,8 @@ class Stoplight:
 
     def wait(self, seconds):
         """Wait for a number of seconds, checking the button every tenth of a second."""
-        # TODO: For each tenth of a second in seconds, sleep(0.1), then check the button.
+        # TODO: Loop over range(int(seconds * 10)), which is one trip/iteration for each tenth of
+        # a second. In each one, sleep(0.1), then check the button.
         # A press sets requested to True
         pass
 
