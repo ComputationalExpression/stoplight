@@ -1,9 +1,10 @@
 # Lab Summary
 
 Each teammate answers the question for the file they wrote, under that file's heading, in full
-sentences. In a team of three, whoever takes the extra file answers its question too. The
-last question is the team's to answer together. Each answer starts as a placeholder marker.
-Replace every marker with your writing, and delete the marker itself. The minimum word count for this document is `250` words.
+sentences. In a team of three, please also agree on who answers the question for the extra file.
+The last question is for the team to answer together. Each answer starts as a placeholder marker,
+so please replace every marker with your writing and delete the marker itself. This document needs
+at least `250` words.
 
 ## light.py
 
@@ -28,7 +29,7 @@ TODO
 
 ## stoplight.py
 
-> A `Stoplight` never touches a `Pin` or the button. Explain what `run_cycle` asks each object to
+> A `Stoplight` does not touch a `Pin` or the button. Explain what `run_cycle` asks each object to
 > do during one flashing red cycle, and why it does not need a `sleep`.
 
 TODO

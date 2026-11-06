@@ -62,7 +62,8 @@ Specifically, by the end of this lab you should be able to:
 
 ## Your team
 
-Your team of three or four shares this one repository. The work is four files, one person each:
+Your team of three or four shares this one repository. The work is divided into four files, and
+each person takes one:
 
 |File |What it holds |
 |:----|:-------------|
@@ -71,37 +72,37 @@ Your team of three or four shares this one repository. The work is four files, o
 |`src/modes.py` |the `Modes` class |
 |`src/stoplight.py` |the `Stoplight` class |
 
-`src/main.py` is provided, and nobody needs to change it.
+`src/main.py` is provided, so nobody needs to change it.
 
-A team of three has one extra file: figure out together who takes it, on a branch of its own
-with its own pull request. Before anyone writes code, decide as a team how you will complete the
-lab: who takes which file, and when each pull request will be ready for review.
+Please agree on who takes which file before anyone writes code. A team of three has one extra
+file, so figure out together how you will complete it. For example, you could work on it together
+during a lab, on its own branch and with its own pull request.
 
 ## The circuit
 
-Every teammate wires their own board. You need your Lab 5 circuit: three LEDs on GP15, GP14
-and GP13, and the push button on GP16. If your board is still wired for Lab 6, put back the
+Every teammate wires their own board, using the Lab 5 circuit: three LEDs on GP15, GP14 and GP13,
+and the push button on GP16. If your board is still wired for Lab 6, you will need to put back the
 lights on GP14 and GP13 with their resistors and jumpers. If your kit has red, yellow and green
-LEDs, put red on GP15, yellow on GP14 and green on GP13. Unplug the USB cable before you touch
-the wiring.
+LEDs, please put red on GP15, yellow on GP14 and green on GP13. Remember to unplug the USB cable
+before you touch the wiring.
 
 ![The Pico 2 W pinout, with each pin's GP number](images/pico-2-pinout.svg)
 
 ![Three LEDs on GP15, GP14 and GP13, and a push button on GP16, on a half breadboard](images/stoplight-circuit.svg)
 
-If the program reads the button as pressed when nothing touches it, turn the button a quarter
-turn. If the button will not work, ask an instructor or TL.
+If the program reads the button as pressed before you have touched it, try turning the button a
+quarter turn. If it still does not work, please ask an instructor or TL for help.
 
 ## The classes
 
 Everything this lab asks for is covered by the Week 11 slides and the weeks before them. The
 class names, method names and the attributes named below must match exactly, because the
-automated checks use them, and because your teammates' code calls yours. Every other name is
-your choice. Each method comes with its docstring.
+automated checks use them, and because your teammates' code calls yours. You can choose every
+other name yourself, and each method already comes with its docstring.
 
 ### How the classes connect
 
-`main.py` makes the objects in the order below, and hands each one the objects it works with:
+`main.py` makes the objects in the order below, and gives each one the objects it works with:
 
 |Class |What it is given |Whose methods it calls |
 |:-----|:----------------|:----------------------|
@@ -112,14 +113,15 @@ your choice. Each method comes with its docstring.
 
 One call of `run_cycle` in the normal mode shows how they work together:
 
-1. `Stoplight` asks `Modes` for the mode name with `mode_name()`, and calls the red light's
-   `shine(3, modes)`
-2. The `Light` turns on, and calls `wait(3)` on `Modes`
+1. `Stoplight` asks `Modes` for the mode name with `mode_name()`, then calls the red light's
+   `shine(3, modes)`.
+2. The `Light` turns on and calls `wait(3)` on `Modes`.
 3. `Modes` calls `watch(3)` on the `Button`, which checks the button for 3 seconds and returns
-   whether it was pressed
-4. If it was pressed, `Modes` sets `requested` to `True`
-5. The `Light` turns off, and `Stoplight` does the same with green and then yellow
-6. `Stoplight` calls `end_cycle()` on `Modes`, which moves to the next mode if `requested` is `True`
+   whether it was pressed.
+4. If it was pressed, `Modes` sets `requested` to `True`.
+5. The `Light` turns off, and `Stoplight` does the same with green and then yellow.
+6. Finally, `Stoplight` calls `end_cycle()` on `Modes`, which moves to the next mode if `requested`
+   is `True`.
 
 ### Light, in light.py
 
@@ -132,7 +134,7 @@ One call of `run_cycle` in the normal mode shows how they work together:
 |`flash(self, seconds, modes)` |Calls `self.shine(seconds, modes)`, then `modes.wait(seconds)`, so the light is on and then dark for the same time |
 
 `modes` is a `Modes` object, passed in like any other parameter, and you call its `wait` method
-with a dot. Slides: [Classes and Objects, slides 3 to 5 and 7](https://computationalexpression.com/slides/week-11-session-2/#3),
+with a dot. For more on this, please see [Classes and Objects, slides 3 to 5 and 7](https://computationalexpression.com/slides/week-11-session-2/#3),
 and [Working as a Team, slide 2](https://computationalexpression.com/slides/week-11-session-3/#2).
 
 ### Button, in button.py
@@ -140,12 +142,12 @@ and [Working as a Team, slide 2](https://computationalexpression.com/slides/week
 |Method |What it does |
 |:------|:------------|
 |`__init__(self, pin_number)` |Makes an input `Pin` with `Pin.PULL_UP` on `pin_number` and stores it, stores `presses` as `0`, and an attribute that remembers whether the button was down at the last check, `False` to start |
-|`check(self)` |Returns `True` when the button is down now and was not down at the last check, and adds 1 to `presses` then. Returns `False` otherwise. Either way, it remembers whether the button is down for the next check |
-|`watch(self, seconds)` |Loops over `range(int(seconds * 10))`, one trip/iteration for each tenth of a second. Each one calls `sleep(0.1)`, then `self.check()`. It keeps going until the time is up, then returns `True` if any check returned `True`, and `False` otherwise. The `int` is needed because `0.5 * 10` is the float `5.0`, and `range` takes only an int |
+|`check(self)` |Returns `True` and adds 1 to `presses` when the button is down now and was not down at the last check, and returns `False` otherwise. Either way, it remembers whether the button is down for the next check |
+|`watch(self, seconds)` |Loops over `range(int(seconds * 10))`, with one trip/iteration for each tenth of a second, calling `sleep(0.1)` and then `self.check()` each time. It keeps going until the time is up, then returns `True` if any check returned `True`, and `False` otherwise. The `int` is needed because `0.5 * 10` is the float `5.0`, and `range` takes only an int |
 
-`PULL_UP` makes a pressed button read `0`. Holding the button down through several checks is
-one press. Slides: [Week 8 Session 3](https://computationalexpression.com/slides/week-08-session-3/)
-for reading the button.
+`PULL_UP` makes a pressed button read `0`, and holding the button down through several checks
+counts as one press. [Week 8 Session 3](https://computationalexpression.com/slides/week-08-session-3/)
+shows how to read the button.
 
 ### Modes, in modes.py
 
@@ -153,16 +155,17 @@ for reading the button.
 
 |Method |What it does |
 |:------|:------------|
-|`__init__(self, button)` |Stores the button. Stores the list of mode names `["normal", "flashing red", "flashing yellow"]`, `mode` as `0` (the position of the current mode in that list), `requested` as `False`, and `cycles` as `0` |
-|`wait(self, seconds)` |Calls the button's `watch(seconds)`. When it returns `True`, sets `requested` to `True` |
+|`__init__(self, button)` |Stores the button and the list of mode names `["normal", "flashing red", "flashing yellow"]`, `mode` as `0` (the position of the current mode in that list), `requested` as `False`, and `cycles` as `0` |
+|`wait(self, seconds)` |Calls the button's `watch(seconds)`, and sets `requested` to `True` when it returns `True` |
 |`mode_name(self)` |Returns the name of the current mode |
-|`end_cycle(self)` |Adds 1 to `cycles`, then, when `requested` is `True`, moves `mode` to the next mode and sets `requested` back to `False`. After the last mode comes the first |
+|`end_cycle(self)` |Adds 1 to `cycles`, then, when `requested` is `True`, moves `mode` to the next mode and sets `requested` back to `False`. After the last mode, it goes back to the first |
 
-Slides: [Classes and Objects, slides 7 to 10](https://computationalexpression.com/slides/week-11-session-2/#7).
+For more on methods that change attributes, please see [Classes and Objects, slides 7 to 10](https://computationalexpression.com/slides/week-11-session-2/#7).
 
 ### Stoplight, in stoplight.py
 
-`Stoplight` is given three `Light` objects and a `Modes` object. It never makes a `Pin` itself.
+`Stoplight` is given three `Light` objects and a `Modes` object, so it does not need to make a
+`Pin` itself.
 
 An object can be a value in a dictionary, and it can be passed to another object's `__init__` and
 stored as an attribute. Either way, you call its methods with a dot. With the `Lamp` from
@@ -197,22 +200,22 @@ One cycle of each mode, using the lights' `shine` and `flash` methods:
 |flashing red |`flash` red with 0.5 seconds |
 |flashing yellow |`flash` yellow with 0.5 seconds |
 
-A press never changes the light in the middle of a cycle: the cycle in progress finishes, and
-the next cycle runs in the next mode. Slides: [Week 10 Session 2](https://computationalexpression.com/slides/week-10-session-2/)
-for looping over a dictionary.
+A press does not change the light in the middle of a cycle. The cycle in progress finishes, and
+the next cycle runs in the next mode. [Week 10 Session 2](https://computationalexpression.com/slides/week-10-session-2/)
+shows how to loop over a dictionary.
 
 ### The program, in main.py
 
-`main.py` is provided. It asks which intersection the light is at and how many cycles to run. It
-makes a `Light` for each color (red on GP15, yellow on GP14, green on GP13), a `Button` on GP16,
-a `Modes` and a `Stoplight`. It runs that many cycles, printing the next mode after each one, then
-turns every light off and prints the stoplight log. Read it to see how your class is used.
-Slides: [Working as a Team, slide 3](https://computationalexpression.com/slides/week-11-session-3/#3)
-for importing a class from another file.
+`main.py` is provided, and it is worth reading to see how your class is used. It asks which
+intersection the light is at and how many cycles to run, then makes a `Light` for each color (red
+on GP15, yellow on GP14, green on GP13), a `Button` on GP16, a `Modes` and a `Stoplight`. After
+running that many cycles and printing the next mode after each one, it turns every light off and
+prints the stoplight log. [Working as a Team, slide 3](https://computationalexpression.com/slides/week-11-session-3/#3)
+explains how a class is imported from another file.
 
 ### Expected output
 
-One run on the board, three cycles, with the button pressed once during the first:
+Here is one run on the board with three cycles, where the button was pressed once during the first:
 
 ```text
 ==================================================
@@ -238,88 +241,89 @@ Red lit: 3
 
 The slides for each step are [Working as a Team on One Repository](https://computationalexpression.com/slides/week-11-session-3/).
 
-Write your file, and only your file, on a branch named for you. The starter has all four files,
-so you can begin before your teammates finish theirs. Each class is checked on its own, so the
-checks for your file tell you whether your part is done while the others are still in progress.
+Please write only your own file, on a branch named for you. The starter has all four files, so you
+can begin before your teammates finish theirs. Each class is checked on its own, so the checks for
+your file will tell you whether your part is done while the others are still in progress.
 
 ### Your branch
 
-Choose the command line or VS Code, and follow the steps for that option. First
-[update `main`](#updating-main) if a teammate has already merged.
+You can use either the command line or VS Code, so please choose one and follow the steps for that
+option. If a teammate has already merged their work, [update `main`](#updating-main) first.
 
 #### Option 1: Command line
 
-1. **Make your branch**: `git switch -c your-name`
-2. **Check your branch** as you work: the first line of `git status` says `On branch your-name`
-3. **Commit and push for the first time**: `git add` your file, `git commit -m "your message"`,
-   then `git push -u origin your-name`
-4. **Commit and push after that**: check your branch, `git add` your file,
-   `git commit -m "your message"`, then `git push`
+1. **Make your branch** with `git switch -c your-name`.
+2. **Check your branch** as you work. The first line of `git status` should say
+   `On branch your-name`.
+3. **Commit and push for the first time** by running `git add` on your file, then
+   `git commit -m "your message"`, then `git push -u origin your-name`.
+4. **Commit and push after that** by checking your branch, running `git add` on your file, then
+   `git commit -m "your message"`, then `git push`.
 
 #### Option 2: VS Code
 
-1. **Make your branch**: click **main** at the bottom left of VS Code. A menu appears at the top
-   of the window. Click **Create new branch**, type your name for the branch, and press Enter
-2. **Check your branch** as you work: the bottom left shows your branch name instead of **main**
-3. **Commit and push for the first time**: in Source Control, type your commit message, click
-   **Commit**, then click **Publish Branch**
-4. **Commit and push after that**: check your branch, type your commit message, click **Commit**,
-   then click **Sync Changes**
+1. **Make your branch** by clicking **main** at the bottom left of VS Code. When the menu appears at
+   the top of the window, click **Create new branch**, type your name for the branch, and press Enter.
+2. **Check your branch** as you work. The bottom left should show your branch name instead of **main**.
+3. **Commit and push for the first time** in Source Control by typing your commit message, clicking
+   **Commit**, and then clicking **Publish Branch**.
+4. **Commit and push after that** by checking your branch, typing your commit message, clicking
+   **Commit**, and then clicking **Sync Changes**.
 
 ### Your pull request
 
-1. **Open a pull request**: go to your repository on GitHub. A yellow banner shows your branch
-   name and a **Compare & pull request** button. Click it
-2. **Review in a circle**: in alphabetical order by first name, each person reviews the next
-   person's pull request, and the last reviews the first. Open **Files changed**, comment on at
-   least one line, then **Review changes**, **Approve**, and **Submit review**
-3. **Merge your approved pull request** with **Merge pull request**, not Squash and merge
+1. **Open a pull request** by going to your repository on GitHub, where a yellow banner shows your
+   branch name and a **Compare & pull request** button. Click that button.
+2. **Review in a circle.** In alphabetical order by first name, each person reviews the next person's
+   pull request, and the last person reviews the first. To review, open **Files changed**, comment on
+   at least one line, then choose **Review changes**, **Approve**, and **Submit review**.
+3. **Merge your approved pull request** with **Merge pull request**, not Squash and merge.
 
 ### Updating main
 
-A merge changes `main` on GitHub, not on your computer. Everyone on the team updates `main` after
-each merge to get the changes, and before making any branch, so that the branch starts from the
-team's latest work.
+A merge changes `main` on GitHub, but not on your computer. Please update `main` after each merge
+to get your teammates' changes, and before you make a new branch so that it starts from the team's
+latest work.
 
-* **Command line**: `git switch main`, then `git pull`
-* **VS Code**: click your branch name at the bottom left, click **main** in the menu at the top
-  of the window, then click the sync icon beside **main** at the bottom left
+* **Command line**: run `git switch main`, then `git pull`.
+* **VS Code**: click your branch name at the bottom left, click **main** in the menu at the top of
+  the window, then click the sync icon beside **main** at the bottom left.
 
 ### Your summary
 
 `docs/summary.md` has one section for each file and one for the team. Each of you writes your own
-section on a branch of its own:
+section on a separate branch:
 
-1. **[Update `main`](#updating-main)** before you write, so that you have your teammates' answers
-2. **Make a new branch**, such as `your-name-summary`, the way you made [your first branch](#your-branch)
-3. **Write the answer for your file** under its heading, and leave the other sections as they are
-4. **Commit, push, open a pull request and merge it.** A summary pull request does not need a review
+1. **[Update `main`](#updating-main)** before you write, so that you have your teammates' answers.
+2. **Make a new branch**, such as `your-name-summary`, the way you made [your first branch](#your-branch).
+3. **Write the answer for your file** under its heading, and leave the other sections as they are.
+4. **Commit, push, open a pull request and merge it.** A summary pull request does not need a review.
 
-Once every teammate's answer is merged, answer the last question together. One of you updates
-`main`, follows the same steps to write the team's answer, and merges it.
+Once every teammate's answer is merged, please answer the last question together. One of you can
+then update `main`, follow the same steps to write the team's answer, and merge it.
 
 ## Getting started
 
-Open your file in `src` and work through its `TODO` markers. Check your work as you go, from the
-assignment's top-level folder, not from inside `src`:
+Open your file in `src` and work through its `TODO` markers. You can check your work as you go by
+running this from the assignment's top-level folder, not from inside `src`:
 
 ```text
 uv run gatorgrade --config gatorgrade.yml
 ```
 
-`uv run python src/main.py` runs the program on a laptop once all four classes are done, but a
-laptop has no button: it reads the button as held down, so the mode changes once, after the
-first cycle. Run the program on the Pico to try the button.
+Once all four classes are done, `uv run python src/main.py` runs the program on a laptop. A laptop
+has no button, so it reads the button as held down and the mode changes once, after the first
+cycle. To try the real button, please run the program on the Pico.
 
 ### Testing on your Pico
 
-When all four files are merged, pull `main` and run the stoplight on your own board. The Run
-button sends only the file you have open, so the four class files have to be on the board
-first. Open the folder of this lab in VS Code (File, Open Folder), then right-click each of
-`src/light.py`, `src/button.py`, `src/modes.py` and `src/stoplight.py` in the Explorer, choose MicroPico, then
-**Upload File to Board**. Upload a file again each time it changes. Then plug in the board,
-open `src/main.py`, and click **Run** in the bar along the bottom of the window. **Board
-Connected** must show beside it:
+When all four files are merged, please pull `main` and run the stoplight on your own board. The Run
+button sends only the file you have open, so the four class files need to be on the board first.
+Open the folder of this lab in VS Code (File, Open Folder), then right-click each of `src/light.py`,
+`src/button.py`, `src/modes.py` and `src/stoplight.py` in the Explorer, choose MicroPico, then
+**Upload File to Board**. You will need to upload a file again each time it changes. Then plug in
+the board, open `src/main.py`, and click **Run** in the bar along the bottom of the window. You
+should see **Board Connected** beside it:
 
 ![The bar along the bottom of VS Code, showing Board Connected and the Run button](images/run-button.png)
 
@@ -329,20 +333,20 @@ This lab is worth **4.5 points**, the standard value for a lab in this course.
 
 | Component | Points | What it measures |
 |:----------|:-------|:-----------------|
-| Programming | 3.0 | The 14 code checks below, the same for every teammate. Your score is the fraction passed, times 3.0 |
+| Programming | 3.0 | The 14 code checks below, which are the same for every teammate. Your score is the fraction passed, times 3.0 |
 | Code quality and style | 1.0 | In the file you wrote: descriptive names (0.3), clear organization (0.3), useful comments (0.4) |
 | Summary writing | 0.5 | Your answer in `docs/summary.md`, and the team's answer to the last question |
 | **Total** | **4.5** | |
 
-Run the checks yourself, as many times as you like, before you submit:
+You can run the checks yourself, as many times as you like, before you submit:
 
 ```text
 uv run gatorgrade --config gatorgrade.yml
 ```
 
 Each check's description says what to look at when it fails. Under a failed check, gatorgrade
-also prints a `uv run pytest ...` command. Run it: the last lines say what came out and what
-was expected. The fourteen code checks:
+also prints a `uv run pytest ...` command, and when you run it, the last lines tell you what came
+out and what was expected. Here are the fourteen code checks:
 
 * `Light` stores its color and state, and `on()` and `off()` drive the LED and update them
 * `shine` stays on through a wait, and `flash` shines and then waits in the dark
@@ -360,7 +364,7 @@ was expected. The fourteen code checks:
 * no `TODO` markers remain in `src`
 * each file in `src` has at least two comments
 
-Partial credit is proportional: passing 10 of 14 checks earns `(10 ÷ 14) × 3.0 = 2.14` points.
+Partial credit is proportional, so passing 10 of 14 checks earns `(10 ÷ 14) × 3.0 = 2.14` points.
 The two remaining checks look at `docs/summary.md` and count toward Summary writing.
 
 > [!NOTE]
@@ -372,9 +376,9 @@ Each teammate has their own code review with a Technical Leader or the instructo
 file they wrote and how it works with the others. **Code reviews are graded separately from the
 4.5 points above**, under the Code Reviews category on the syllabus.
 
-With you present, you run the stoplight on your board for the reviewer, then answer questions
-about your own code. The reviewer opens a **Code Review** issue on your team's repository with
-your name on it. The questions differ from student to student. Be ready to:
+During the review, you will run the stoplight on your board for the reviewer and then answer
+questions about your own code. The reviewer opens a **Code Review** issue on your team's repository
+with your name on it. The questions differ from student to student, so please be ready to:
 
 * **Attributes**: explain what your class keeps track of, and where each attribute gets its
   first value
@@ -396,10 +400,10 @@ review, you can make it up at office hours within one week of the due date:
 
 ## Submitting
 
-The `main` branch on GitHub at the deadline is what gets graded, so merge every pull request
-before then. Open your repository on GitHub and confirm each file and `docs/summary.md` are on
-`main`.
+The `main` branch on GitHub at the deadline is what gets graded, so please merge every pull request
+before then. When you are done, open your repository on GitHub and confirm that each file and
+`docs/summary.md` are on `main`.
 
-If you need more time, apply a late token with [this form](https://forms.gle/3nGbpaNrG96DpLLdA).
-One token covers both parts of a lab: the submission and the code review. A token covers only
-the student who applies it, not the team.
+If you need more time, you can apply a late token with [this form](https://forms.gle/3nGbpaNrG96DpLLdA).
+One token covers both parts of a lab, the submission and the code review, but it covers only the
+student who applies it and not the team.
