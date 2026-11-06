@@ -26,6 +26,9 @@ file, on your own branch, and merges it through a pull request a teammate approv
   * [The program, in main.py](#the-program-in-mainpy)
   * [Expected output](#expected-output)
 * [Working as a team](#working-as-a-team)
+  * [Your branch](#your-branch)
+  * [Your pull request](#your-pull-request)
+  * [Updating main](#updating-main)
 * [Getting started](#getting-started)
   * [Testing on your Pico](#testing-on-your-pico)
 * [Evaluation](#evaluation)
@@ -206,22 +209,49 @@ Red lit: 3
 
 The slides for each step are [Working as a Team on One Repository](https://computationalexpression.com/slides/week-11-session-3/).
 
-1. **Make your branch**, named for you: `git switch -c your-name`, or click the branch name at
-   the bottom left of VS Code and choose **Create new branch**
-2. **Write your file, and only your file.** The starter has all four files, so you can begin
-   before your teammates finish theirs
-3. **Commit and push your branch**: `git add` your file, `git commit`, then
-   `git push -u origin your-name`, or **Publish Branch** in Source Control
-4. **Open a pull request** on GitHub with **Compare & pull request**
-5. **Review in a circle**: in alphabetical order by first name, each person reviews the next
+Write your file, and only your file, on a branch named for you. The starter has all four files,
+so you can begin before your teammates finish theirs. Each class is checked on its own, so the
+checks for your file tell you whether your part is done while the others are still in progress.
+
+### Your branch
+
+Choose the command line or VS Code, and follow the steps for that option.
+
+#### Option 1: Command line
+
+1. **Make your branch**: `git switch -c your-name`
+2. **Check your branch** as you work: the first line of `git status` says `On branch your-name`
+3. **Commit and push for the first time**: `git add` your file, `git commit -m "your message"`,
+   then `git push -u origin your-name`
+4. **Commit and push after that**: check your branch, `git add` your file,
+   `git commit -m "your message"`, then `git push`
+
+#### Option 2: VS Code
+
+1. **Make your branch**: click **main** at the bottom left of VS Code. A menu appears at the top
+   of the window. Click **Create new branch**, type your name for the branch, and press Enter
+2. **Check your branch** as you work: the bottom left shows your branch name instead of **main**
+3. **Commit and push for the first time**: in Source Control, type your commit message, click
+   **Commit**, then click **Publish Branch**
+4. **Commit and push after that**: check your branch, type your commit message, click **Commit**,
+   then click **Sync Changes**
+
+### Your pull request
+
+1. **Open a pull request**: go to your repository on GitHub. A yellow banner shows your branch
+   name and a **Compare & pull request** button. Click it
+2. **Review in a circle**: in alphabetical order by first name, each person reviews the next
    person's pull request, and the last reviews the first. Open **Files changed**, comment on at
    least one line, then **Review changes**, **Approve**, and **Submit review**
-6. **Merge your approved pull request** with **Merge pull request**, not Squash and merge
-7. **Update `main`** after each merge with `git switch main` and `git pull`, and start any
-   further work on a new branch from there
+3. **Merge your approved pull request** with **Merge pull request**, not Squash and merge
 
-Each class is checked on its own, so the checks for your file tell you whether your part is
-done while the others are still in progress.
+### Updating main
+
+Update `main` after each merge, and start any further work on a new branch from there.
+
+* **Command line**: `git switch main`, then `git pull`
+* **VS Code**: click your branch name at the bottom left, click **main** in the menu at the top
+  of the window, then click the sync icon beside **main** at the bottom left
 
 ## Getting started
 
